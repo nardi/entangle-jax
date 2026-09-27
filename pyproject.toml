@@ -1,6 +1,9 @@
 [build-system]
 build-backend = "mesonpy"
-requires = ["meson-python>=0.16", "Cython>=3.0", "jax>=0.10"]
+# Build against the oldest supported jaxlib. XLA accepts FFI handlers compiled against an
+# older FFI API version, but it rejects handlers compiled against a newer one. Bump this pin
+# together with the `jax` lower bound in `dependencies`.
+requires = ["meson-python>=0.16", "Cython>=3.0", "jax==0.10.0", "jaxlib==0.10.0"]
 
 [project]
 name = "entangle-jax"
@@ -10,6 +13,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 authors = [{ name = "Nardi Lam", email = "mail@nardilam.nl" }]
+# Keep the `jax` lower bound in step with the build-system pin above.
 dependencies = ["jax>=0.10", "jaxtyping>=0.2"]
 
 [project.urls]
