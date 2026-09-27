@@ -131,3 +131,17 @@ def test_vmap_over_payload_and_witness_matches_per_example_entangle():
     # Also under jit, and with one argument batched and the other not.
     jitted = jax.jit(jax.vmap(entangle, in_axes=(0, None)))(payload, witness[0])
     assert jnp.array_equal(jitted, payload)
+
+
+def test_gpu_targets_are_queued_under_the_plugin_platform_names():
+    from jaxlib import xla_client
+
+    def queued_target_names(platform):
+        """Return the names of the FFI targets that wait in JAX's queue for `platform`."""
+        return {entry[0] for entry in xla_client._custom_callback.get(platform, [])}
+
+    # Without a GPU plugin, targets stay queued under the platform name they were registered
+    # with. See `_register_targets` in `_ffi.pyx` for why lowercase names never get picked up.
+    for lowercase_platform in ("cuda", "rocm"):
+        target_names = queued_target_names(lowercase_platform)
+        assert not any(name.startswith("entangle_jax") for name in target_names)
