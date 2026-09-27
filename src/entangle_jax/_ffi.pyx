@@ -28,7 +28,11 @@ cdef object _capsule(void* address):
 def _register_targets():
     import jax
 
-    for platform in ("cpu", "cuda", "rocm", "tpu"):
+    # JAX only maps "cpu" and "gpu" to canonical names (see `xla_client.xla_platform_names`)
+    # and registers every other name as given. The CUDA and ROCm plugins read the targets
+    # registered under "CUDA" and "ROCM". A target registered under "cuda" or "rocm" will stay
+    # in the pending queue and never reach a plugin.
+    for platform in ("cpu", "CUDA", "ROCM", "tpu"):
         jax.ffi.register_ffi_target(
             "entangle_jax", _capsule(entangle_handler_address()), platform=platform
         )
