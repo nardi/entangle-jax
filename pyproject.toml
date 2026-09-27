@@ -7,7 +7,7 @@ requires = ["meson-python>=0.16", "Cython>=3.0", "jax==0.10.0", "jaxlib==0.10.0"
 
 [project]
 name = "entangle-jax"
-version = "0.1.0"
+version = "0.1.1"
 description = "A generic JAX primitive that is opaque to XLA reordering optimizations"
 readme = "README.md"
 license = "MIT"
