@@ -38,8 +38,9 @@ setup = ["--vsenv"]
 
 [tool.cibuildwheel]
 build = "{cp311-manylinux_x86_64,cp312-manylinux_x86_64,cp313-manylinux_x86_64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64,cp311-macosx_x86_64,cp312-macosx_x86_64,cp313-macosx_x86_64,cp311-macosx_arm64,cp312-macosx_arm64,cp313-macosx_arm64}"
-test-requires = "pytest"
-test-command = "pytest {project}/tests"
+# Test each wheel against the minimum supported jax and jaxlib first, then against the latest.
+test-requires = ["pytest", "jax==0.10.0", "jaxlib==0.10.0"]
+test-command = "pytest {project}/tests && python -m pip install --upgrade jax jaxlib && pytest {project}/tests"
 
 [tool.ruff]
 line-length = 100
