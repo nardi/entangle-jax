@@ -131,3 +131,13 @@ def test_vmap_over_payload_and_witness_matches_per_example_entangle():
     # Also under jit, and with one argument batched and the other not.
     jitted = jax.jit(jax.vmap(entangle, in_axes=(0, None)))(payload, witness[0])
     assert jnp.array_equal(jitted, payload)
+
+
+def test_gpu_targets_are_queued_under_the_plugin_platform_names():
+    from jaxlib import xla_client
+
+    def queued_under(platform):
+        return {entry[0] for entry in xla_client._custom_callback.get(platform, [])}
+
+    for wrong in ("cuda", "rocm"):
+        assert not any(name.startswith("entangle_jax") for name in queued_under(wrong))

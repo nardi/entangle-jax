@@ -28,7 +28,10 @@ cdef object _capsule(void* address):
 def _register_targets():
     import jax
 
-    for platform in ("cpu", "cuda", "rocm", "tpu"):
+    # JAX canonicalizes only "cpu" and "gpu"; every other name is filed as given. The GPU
+    # plugins pick up targets filed under "CUDA" and "ROCM", so lowercase names would stay
+    # queued forever and never reach them.
+    for platform in ("cpu", "CUDA", "ROCM", "tpu"):
         jax.ffi.register_ffi_target(
             "entangle_jax", _capsule(entangle_handler_address()), platform=platform
         )

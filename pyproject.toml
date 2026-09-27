@@ -1,15 +1,19 @@
 [build-system]
 build-backend = "mesonpy"
-requires = ["meson-python>=0.16", "Cython>=3.0", "jax>=0.10"]
+# Build against the oldest supported jaxlib: XLA accepts FFI handlers compiled against an
+# older FFI API version but rejects newer ones. Bump this pin together with the jax lower
+# bound in `dependencies`.
+requires = ["meson-python>=0.16", "Cython>=3.0", "jax==0.10.0", "jaxlib==0.10.0"]
 
 [project]
 name = "entangle-jax"
-version = "0.1.0"
+version = "0.1.1"
 description = "A generic JAX primitive that is opaque to XLA reordering optimizations"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 authors = [{ name = "Nardi Lam", email = "mail@nardilam.nl" }]
+# Keep the jax lower bound in step with the build-system pin above.
 dependencies = ["jax>=0.10", "jaxtyping>=0.2"]
 
 [project.urls]
@@ -34,8 +38,9 @@ setup = ["--vsenv"]
 
 [tool.cibuildwheel]
 build = "{cp311-manylinux_x86_64,cp312-manylinux_x86_64,cp313-manylinux_x86_64,cp311-win_amd64,cp312-win_amd64,cp313-win_amd64,cp311-macosx_x86_64,cp312-macosx_x86_64,cp313-macosx_x86_64,cp311-macosx_arm64,cp312-macosx_arm64,cp313-macosx_arm64}"
-test-requires = "pytest"
-test-command = "pytest {project}/tests"
+# Test each wheel against the minimum supported jax and jaxlib first, then against the latest.
+test-requires = ["pytest", "jax==0.10.0", "jaxlib==0.10.0"]
+test-command = "pytest {project}/tests && python -m pip install --upgrade jax jaxlib && pytest {project}/tests"
 
 [tool.ruff]
 line-length = 100
